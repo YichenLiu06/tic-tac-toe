@@ -1,9 +1,9 @@
 const Gameboard = (function createGameboard(){
-  const board = [['*','*','*'],['*','*','*'],['*','*','*']];
+  const board = [['','',''],['','',''],['','','']];
 
   //Only accepts 'X' and 'O' as values
   const setCell = (x, y, value) => {
-    if((value == 'X' || value == 'O') && board[x][y] == '*'){
+    if((value == 'X' || value == 'O') && board[x][y] == ''){
       board[x][y] = value;
       return true;
     }
@@ -53,18 +53,43 @@ const Gameboard = (function createGameboard(){
     let full = true;
     for(let x=0; x<3; x++){
       for(let y=0; y<3; y++){
-        if(board[x][y] == '*')
+        if(board[x][y] == '')
           full = false;
       }
     }
     return (!checkWin('X') && !checkWin('O') && full);
   }
 
-  const displayBoard = () => {
+  const display = () => {
     board.forEach(a=>console.log(...a));
   }
 
-  return {setCell, getCell, checkWin, checkTie, displayBoard};
+  const render = () => {
+    console.log("hello");
+    const boardContainer = document.createElement("div");
+    boardContainer.style.display = "grid";
+    boardContainer.style.gridTemplate = "1fr 1fr 1fr / 1fr 1fr 1fr"
+    boardContainer.style.height = "500px";
+    boardContainer.style.width = "500px";
+    boardContainer.style.gap = "5px";
+    boardContainer.style.backgroundColor = "black"
+    for(let x=0; x<3; x++){
+      for(let y=0; y<3; y++){
+        const cell = document.createElement("div");
+        if(board[x][y] != ''){
+          cell.style.backgroundImage = board[x][y] == 'O' ? 'url("O.png")' : 'url("X.png")';
+          cell.style.backgroundSize = "cover";
+        }
+        cell.style.backgroundColor = "white";
+        cell.dataset.x = x;
+        cell.dataset.y = y;
+        boardContainer.appendChild(cell);
+      }
+    }
+    document.querySelector("body").appendChild(boardContainer);
+  }
+
+  return {setCell, getCell, checkWin, checkTie, display, render};
 
 })();
 
@@ -90,7 +115,7 @@ const Game = (function createGame(){
 
   const fillCell = (x,y) => {
     if(currentPlayer.fillCell(x,y)){
-      Gameboard.displayBoard();
+      Gameboard.display();
       if(Gameboard.checkWin(currentPlayer.getValue()))
         console.log(`${currentPlayer.getName()} wins!`);
       if(Gameboard.checkTie())
@@ -103,9 +128,10 @@ const Game = (function createGame(){
 
 })()
 
-Gameboard.displayBoard();
+Gameboard.display();
 
 Game.fillCell(0,2);
 Game.fillCell(0,1);
 Game.fillCell(0,2);
 Game.fillCell(0,0);
+Gameboard.render();
