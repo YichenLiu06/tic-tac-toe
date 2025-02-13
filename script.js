@@ -64,32 +64,15 @@ const Gameboard = (function createGameboard(){
     board.forEach(a=>console.log(...a));
   }
 
-  const render = () => {
-    console.log("hello");
-    const boardContainer = document.createElement("div");
-    boardContainer.style.display = "grid";
-    boardContainer.style.gridTemplate = "1fr 1fr 1fr / 1fr 1fr 1fr"
-    boardContainer.style.height = "500px";
-    boardContainer.style.width = "500px";
-    boardContainer.style.gap = "5px";
-    boardContainer.style.backgroundColor = "black"
+  const reset = () => {
     for(let x=0; x<3; x++){
       for(let y=0; y<3; y++){
-        const cell = document.createElement("div");
-        if(board[x][y] != ''){
-          cell.style.backgroundImage = board[x][y] == 'O' ? 'url("O.png")' : 'url("X.png")';
-          cell.style.backgroundSize = "cover";
-        }
-        cell.style.backgroundColor = "white";
-        cell.dataset.x = x;
-        cell.dataset.y = y;
-        boardContainer.appendChild(cell);
+        board[x][y] = '';
       }
     }
-    document.querySelector("body").appendChild(boardContainer);
   }
 
-  return {setCell, getCell, checkWin, checkTie, display, render};
+  return {setCell, getCell, checkWin, checkTie, display, reset};
 
 })();
 
@@ -108,30 +91,61 @@ function createPlayer (value, name){
 }
 
 const Game = (function createGame(){
-
   const playerOne = createPlayer('X', 'Player One');
   const playerTwo = createPlayer('O', 'Player Two');
   let currentPlayer = playerOne;
+  let winner;
+  let tie = false;
+
+  const cells = document.querySelectorAll(".cell");
+  cells.forEach((cell) => {
+    cell.addEventListener("click", () => {
+      fillCell(cell.dataset.x, cell.dataset.y); 
+    });
+  })
 
   const fillCell = (x,y) => {
-    if(currentPlayer.fillCell(x,y)){
+    if(!winner && !tie && currentPlayer.fillCell(x,y)){
+
+      let cell = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+      cell.style.backgroundImage = currentPlayer == playerOne ? 'url("X.png")' : 'url("O.png")'
       Gameboard.display();
-      if(Gameboard.checkWin(currentPlayer.getValue()))
-        console.log(`${currentPlayer.getName()} wins!`);
-      if(Gameboard.checkTie())
+
+      if(Gameboard.checkWin(currentPlayer.getValue())){
+        winner = currentPlayer;
+        const result = document.querySelector("")
+      }
+
+      if(Gameboard.checkTie()){
+        tie = true;
         console.log("It's a tie!");
+      }
+        
+
       currentPlayer = (currentPlayer == playerOne) ? playerTwo : playerOne;
+      return true;
+    }
+    else {
+      return false;
     }
   }
 
-  return {fillCell}
+  const reset = () => {
+    currentPlayer = playerOne;
+    winner = null;
+    tie = false;
+    Gameboard.reset();
+    cells.forEach((cell) => {
+      cell.style.backgroundImage = '';
+    })
+  }
+
+  return {fillCell, reset}
 
 })()
 
-Gameboard.display();
+const resetButton = document.querySelector(".reset");
 
-Game.fillCell(0,2);
-Game.fillCell(0,1);
-Game.fillCell(0,2);
-Game.fillCell(0,0);
-Gameboard.render();
+resetButton.addEventListener("click", () => {
+  Game.reset();
+})
