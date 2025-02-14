@@ -96,6 +96,7 @@ const Game = (function createGame(){
   let currentPlayer = playerOne;
   let winner;
   let tie = false;
+  const result = document.querySelector(".result")
 
   const cells = document.querySelectorAll(".cell");
   cells.forEach((cell) => {
@@ -113,12 +114,12 @@ const Game = (function createGame(){
 
       if(Gameboard.checkWin(currentPlayer.getValue())){
         winner = currentPlayer;
-        const result = document.querySelector("")
+        result.textContent = `${winner.getName()} Wins!`
       }
 
       if(Gameboard.checkTie()){
         tie = true;
-        console.log("It's a tie!");
+        result.textContent = `It's a tie!`
       }
         
 
@@ -138,6 +139,7 @@ const Game = (function createGame(){
     cells.forEach((cell) => {
       cell.style.backgroundImage = '';
     })
+    result.textContent="";
   }
 
   return {fillCell, reset}
